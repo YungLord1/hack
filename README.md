@@ -393,6 +393,42 @@ sum(rate(nginx_http_requests_total[5m]))
 
 ---
 
+### 16.1. Доступ к Grafana
+
+Grafana доступна по адресу:
+
+```text
+http://<MASTER_IP>:30300
+```
+
+Логин по умолчанию:
+
+```text
+admin
+```
+
+Пароль автоматически создаётся Kubernetes Secret при установке `kube-prometheus-stack`.
+
+Получить пароль:
+
+```bash
+kubectl get secret kube-prometheus-stack-grafana \
+  -n monitoring \
+  -o jsonpath="{.data.admin-password}" | base64 -d
+echo
+```
+
+После этого выполнить вход в Grafana с учётными данными:
+
+```text
+Логин: admin
+Пароль: полученный из Kubernetes Secret
+```
+
+> Пароль не хранится в репозитории и не указывается в конфигурационных файлах проекта.
+
+
+
 ## 17. Логирование
 
 Для сбора логов используется **Fluentd** в режиме DaemonSet — на каждом узле работает свой экземпляр.
