@@ -1,0 +1,10 @@
+---
+nginx_kubeconfig: "/home/{{ ansible_user }}/.kube/config"
+
+helm_version: "v4.3.0"
+helm_arch: "amd64"
+helm_url: "https://get.helm.sh/helm-{{ helm_version }}-linux-{{ helm_arch }}.tar.gz"
+
+gateway_api_version: "v1.6.1"
+
+nginx_gateway_fabric_version: "2.7.2"

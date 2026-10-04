@@ -1,0 +1,79 @@
+deploymentMode: Monolithic
+
+loki:
+  auth_enabled: false
+
+  commonConfig:
+    replication_factor: 1
+
+  storage:
+    type: filesystem
+    filesystem:
+      chunks_directory: /var/loki/chunks
+      rules_directory: /var/loki/rules
+
+  schemaConfig:
+    configs:
+      - from: "2024-04-01"
+        store: tsdb
+        object_store: filesystem
+        schema: v13
+        index:
+          prefix: loki_index_
+          period: 24h
+
+  limits_config:
+    allow_structured_metadata: true
+    volume_enabled: true
+
+singleBinary:
+  replicas: 1
+
+  persistence:
+    enabled: true
+    existingClaim: loki-storage
+
+  nodeSelector:
+    kubernetes.io/hostname: 2015692.xorek.cloud
+
+  tolerations:
+    - key: node-role.kubernetes.io/control-plane
+      operator: Exists
+      effect: NoSchedule
+
+backend:
+  replicas: 0
+
+read:
+  replicas: 0
+
+write:
+  replicas: 0
+
+gateway:
+  enabled: false
+
+chunksCache:
+  enabled: false
+
+resultsCache:
+  enabled: false
+
+lokiCanary:
+  enabled: false
+
+test:
+  enabled: false
+
+monitoring:
+  dashboards:
+    enabled: false
+
+  serviceMonitor:
+    enabled: false
+
+  selfMonitoring:
+    enabled: false
+
+  lokiCanary:
+    enabled: false

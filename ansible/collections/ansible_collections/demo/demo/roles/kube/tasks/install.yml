@@ -1,0 +1,27 @@
+---
+- name: Install bin k8s
+  ansible.builtin.package:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ k8s_packages }}"
+  tags:
+    - k8s_install
+    - k8s_bin
+
+- name: Hold packets if random update
+  ansible.builtin.dpkg_selections:
+    name: "{{ item }}"
+    selection: hold
+  loop: "{{ k8s_packages }}"
+  tags:
+    - k8s_install
+      - k8s_bin
+
+- name: Enable autostart for kubelet
+  ansible.builtin.systemd:
+    name: kubelet
+    enabled: true
+    state: started
+  tags:
+    - k8s_install
+    - k8s_bin

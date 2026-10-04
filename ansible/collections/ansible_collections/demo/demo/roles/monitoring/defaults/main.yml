@@ -1,0 +1,9 @@
+---
+monitoring_namespace: monitoring
+
+kube_prometheus_stack_version: "91.8.1"
+
+monitoring_helm_repo_name: "prometheus-community"
+monitoring_helm_repo_url: "https://prometheus-community.github.io/helm-charts"
+
+monitoring_kubeconfig: "/home/{{ ansible_user }}/.kube/config"

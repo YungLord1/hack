@@ -1,0 +1,11 @@
+---
+logging_namespace: logging
+
+loki_release_name: loki
+loki_chart_version: "12.0.0"
+
+loki_storage_path: /var/lib/loki
+
+loki_kubeconfig: "/home/{{ ansible_user }}/.kube/config"
+
+fluentd_image: "grafana/fluent-plugin-loki:main"

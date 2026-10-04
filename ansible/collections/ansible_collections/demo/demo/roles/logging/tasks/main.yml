@@ -1,0 +1,9 @@
+---
+- name: Install Loki
+  ansible.builtin.import_tasks: loki.yml
+
+- name: Install Fluentd
+  ansible.builtin.import_tasks: fluentd.yml
+
+- name: Configure Grafana Loki datasource
+  ansible.builtin.import_tasks: grafana.yml

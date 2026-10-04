@@ -1,0 +1,53 @@
+---
+- name: Playbook started
+  hosts: myVMs
+  become: true
+
+  roles:
+    - role: docker
+      tags: docker
+
+    - role: kube
+      tags: k8s
+
+    - role: cluster_up
+      tags: cluster
+
+- name: Setup master
+  hosts: master
+  become: true
+  tasks:
+    - name: Initialize Kubernetes master
+      ansible.builtin.include_tasks:
+        file: collections/ansible_collections/demo/demo/roles/cluster_up/tasks/master.yml
+  tags: cluster
+
+- name: Join workers
+  hosts: workers
+  become: true
+  tasks:
+    - name: Join workers to Kuber cluster
+      ansible.builtin.include_tasks:
+        file: collections/ansible_collections/demo/demo/roles/cluster_up/tasks/workers.yml
+  tags: cluster
+
+- name: Deploy nginx
+  hosts: master
+  become: true
+  roles:
+    - role: network
+      tags: network
+
+- name: Deploy Prom + grafana
+  hosts: master
+  become: true
+  roles:
+    - role: monitoring
+      tags: monitoring
+
+- name: Deploy logging
+  hosts: master
+  become: true
+  roles:
+    - role: logging
+      tags: logging

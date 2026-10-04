@@ -1,0 +1,12 @@
+---
+- name: Install NGINX Gateway Fabric
+  ansible.builtin.command:
+    cmd: >
+      helm upgrade --install ngf
+      oci://ghcr.io/nginx/charts/nginx-gateway-fabric
+      --version {{ nginx_gateway_fabric_version | regex_replace('^v', '') }}
+      --create-namespace
+      -n nginx-gateway
+      --set nginx.service.type=NodePort
+  environment:
+    KUBECONFIG: "{{ nginx_kubeconfig }}"

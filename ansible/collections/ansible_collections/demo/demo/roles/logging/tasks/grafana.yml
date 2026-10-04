@@ -1,0 +1,36 @@
+---
+- name: Create Grafana Loki datasource
+  kubernetes.core.k8s:
+    state: present
+    kubeconfig: "{{ loki_kubeconfig }}"
+    definition:
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: grafana-loki-datasource
+        namespace: monitoring
+        labels:
+          grafana_datasource: "1"
+      data:
+        loki.yaml: |
+          apiVersion: 1
+
+          datasources:
+            - name: Loki
+              type: loki
+              access: proxy
+              url: http://loki.logging.svc.cluster.local:3100
+              isDefault: false
+              editable: true
+
+- name: Create Grafana logging dashboard manifest
+  ansible.builtin.template:
+    src: dashboard.yaml.j2
+    dest: /tmp/logging-dashboard.yaml
+    mode: "0644"
+
+- name: Create Grafana logging dashboard
+  kubernetes.core.k8s:
+    state: present
+    kubeconfig: "{{ loki_kubeconfig }}"
+    src: /tmp/logging-dashboard.yaml

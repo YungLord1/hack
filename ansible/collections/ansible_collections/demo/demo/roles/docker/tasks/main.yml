@@ -1,0 +1,41 @@
+---
+- name: Install packages
+  ansible.builtin.apt:
+    name: "{{ pkgs_for_docker }}"
+    state: present
+    update_cache: true
+
+- name: Add GPG key to docker
+  ansible.builtin.get_url:
+    url: "{{ docker_gpg }}"
+    dest: "{{ docker_key_path }}"
+    mode: '0644'
+
+- name: Add repo Docker
+  ansible.builtin.apt_repository:
+    repo: "{{ docker_repo }}"
+    state: present
+    update_cache: true
+
+- name: Install docker
+  ansible.builtin.apt:
+    name: "{{ docker_pkgs }}"
+    state: present
+    update_cache: true
+
+- name: Start service.docker
+  ansible.builtin.service:
+    name: docker
+    state: started
+    enabled: true
+
+- name: Add user to group Docker
+  ansible.builtin.user:
+    name: "{{ ansible_user_id }}"
+    groups: docker
+    append: true
+
+- name: Check is Docker installed
+  ansible.builtin.command: docker --version
+  register: docker_valid
+  ignore_errors: true

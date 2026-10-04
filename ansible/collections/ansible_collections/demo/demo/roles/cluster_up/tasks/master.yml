@@ -1,0 +1,55 @@
+---
+- name: Kubeadm init
+  ansible.builtin.command: kubeadm init --apiserver-advertise-address={{ ansible_host }} --pod-network-cidr=192.168.0.0/16 --service-cidr=10.96.0.0/12
+  args:
+    creates: /etc/kubernetes/admin.conf
+
+- name: Create .kube directory
+  ansible.builtin.file:
+    path: "/home/{{ ansible_user }}/.kube"
+    state: directory
+    mode: '0755'
+    owner: "{{ ansible_user }}"
+
+- name: Copy admin.conf to User's kube config
+  ansible.builtin.copy:
+    src: /etc/kubernetes/admin.conf
+    dest: "/home/{{ ansible_user }}/.kube/config"
+    remote_src: true
+    owner: "{{ ansible_user }}"
+
+- name: Download Calico CRD manifest
+  ansible.builtin.get_url:
+    url: "https://raw.githubusercontent.com/projectcalico/calico/v3.33.0/manifests/v3_projectcalico_org.yaml"
+    dest: /tmp/calico-crds.yaml
+    mode: '0644'
+
+- name: Download Calico operator manifest
+  ansible.builtin.get_url:
+    url: "https://raw.githubusercontent.com/projectcalico/calico/v3.33.0/manifests/tigera-operator.yaml"
+    dest: /tmp/tigera-operator.yaml
+    mode: '0644'
+
+- name: Apply Calico CRDs
+  ansible.builtin.command:
+    cmd: kubectl apply --server-side --force-conflicts -f /tmp/calico-crds.yaml
+  environment:
+    KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
+
+- name: Apply Tigera operator
+  ansible.builtin.command:
+    cmd: kubectl apply -f /tmp/tigera-operator.yaml
+  environment:
+    KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
+
+- name: Download Calico custom resources
+  ansible.builtin.get_url:
+    url: "https://raw.githubusercontent.com/projectcalico/calico/v3.33.0/manifests/custom-resources.yaml"
+    dest: /tmp/calico-resources.yaml
+    mode: '0644'
+
+- name: Apply Calico custom resources
+  ansible.builtin.command:
+    cmd: kubectl apply -f /tmp/calico-resources.yaml
+  environment:
+    KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"

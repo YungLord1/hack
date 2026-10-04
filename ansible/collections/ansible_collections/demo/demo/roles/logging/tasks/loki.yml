@@ -1,0 +1,63 @@
+---
+- name: Create Loki storage directory
+  ansible.builtin.file:
+    path: "{{ loki_storage_path }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Add Grafana Helm repository
+  ansible.builtin.command:
+    cmd: >
+      helm repo add grafana-community
+      https://grafana-community.github.io/helm-charts
+  register: loki_helm_repo
+  changed_when: "'has been added' in loki_helm_repo.stdout or 'has been updated' in loki_helm_repo.stdout"
+
+- name: Update Helm repositories
+  ansible.builtin.command:
+    cmd: helm repo update
+  changed_when: false
+
+- name: Create Loki values
+  ansible.builtin.template:
+    src: loki-values.yaml.j2
+    dest: /tmp/loki-values.yaml
+    mode: "0644"
+
+- name: Create Loki storage manifest
+  ansible.builtin.template:
+    src: loki-storage.yaml.j2
+    dest: /tmp/loki-storage.yaml
+    mode: "0644"
+
+- name: Apply Loki storage
+  kubernetes.core.k8s:
+    state: present
+    kubeconfig: "{{ loki_kubeconfig }}"
+    src: /tmp/loki-storage.yaml
+
+- name: Install Loki
+  ansible.builtin.command:
+    cmd: >
+      helm upgrade --install {{ loki_release_name }}
+      grafana-community/loki
+      --namespace {{ logging_namespace }}
+      --create-namespace
+      --version {{ loki_chart_version }}
+      --values /tmp/loki-values.yaml
+  environment:
+    KUBECONFIG: "{{ loki_kubeconfig }}"
+
+- name: Create Loki NodePort manifest
+  ansible.builtin.template:
+    src: loki-nodeport.yaml.j2
+    dest: /tmp/loki-nodeport.yaml
+    mode: "0644"
+
+- name: Expose Loki via NodePort
+  kubernetes.core.k8s:
+    state: present
+    kubeconfig: "{{ loki_kubeconfig }}"
+    src: /tmp/loki-nodeport.yaml

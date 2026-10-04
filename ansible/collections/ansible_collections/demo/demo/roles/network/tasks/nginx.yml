@@ -1,0 +1,36 @@
+---
+- name: Apply Nginx namespace
+  kubernetes.core.k8s:
+    state: present
+    src: "{{ playbook_dir }}/k8s/nginx/namespace.yaml"
+    kubeconfig: "{{ nginx_kubeconfig }}"
+
+- name: Apply Nginx config
+  kubernetes.core.k8s:
+    state: present
+    src: "{{ playbook_dir }}/k8s/nginx/configmap.yaml"
+    kubeconfig: "{{ nginx_kubeconfig }}"
+
+- name: Apply Nginx deployment
+  kubernetes.core.k8s:
+    state: present
+    src: "{{ playbook_dir }}/k8s/nginx/deployment.yaml"
+    kubeconfig: "{{ nginx_kubeconfig }}"
+
+- name: Apply Nginx service
+  kubernetes.core.k8s:
+    state: present
+    src: "{{ playbook_dir }}/k8s/nginx/service.yaml"
+    kubeconfig: "{{ nginx_kubeconfig }}"
+
+- name: Apply Nginx metrics service
+  kubernetes.core.k8s:
+    state: present
+    src: "{{ playbook_dir }}/k8s/nginx/metrics-service.yaml"
+    kubeconfig: "{{ nginx_kubeconfig }}"
+
+- name: Apply Nginx ServiceMonitor
+  kubernetes.core.k8s:
+    state: present
+    src: "{{ playbook_dir }}/k8s/nginx/servicemonitor.yaml"
+    kubeconfig: "{{ nginx_kubeconfig }}"

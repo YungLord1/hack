@@ -1,0 +1,14 @@
+---
+# tasks file for demo.demo.kube
+
+- name: Prepare system
+  ansible.builtin.import_tasks: prepare.yml
+
+- name: Setting for repo
+  ansible.builtin.import_tasks: repository.yml
+
+- name: Install packages
+  ansible.builtin.import_tasks: install.yml
+
+- name: Configure containerd
+  ansible.builtin.import_tasks: containerd.yml

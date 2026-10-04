@@ -1,0 +1,56 @@
+---
+- name: Add Prometheus Helm repository
+  ansible.builtin.command:
+    cmd: >
+      helm repo add
+      {{ monitoring_helm_repo_name }}
+      {{ monitoring_helm_repo_url }}
+  register: helm_repo_add
+  changed_when: "'has been added' in helm_repo_add.stdout"
+
+- name: Update Helm repositories
+  ansible.builtin.command:
+    cmd: helm repo update
+  changed_when: false
+
+- name: Check kube-prometheus-stack
+  ansible.builtin.command:
+    cmd: >
+      helm status kube-prometheus-stack
+      --namespace {{ monitoring_namespace }}
+  environment:
+    KUBECONFIG: "{{ monitoring_kubeconfig }}"
+  register: monitoring_release
+  failed_when: false
+  changed_when: false
+
+- name: Create monitoring Helm values
+  ansible.builtin.template:
+    src: values.yaml.j2
+    dest: /tmp/kube-prometheus-stack-values.yaml
+    mode: "0644"
+
+- name: Install kube-prometheus-stack
+  ansible.builtin.command:
+    cmd: >
+      helm upgrade --install kube-prometheus-stack
+      {{ monitoring_helm_repo_name }}/kube-prometheus-stack
+      --namespace {{ monitoring_namespace }}
+      --create-namespace
+      --version {{ kube_prometheus_stack_version }}
+      --values /tmp/kube-prometheus-stack-values.yaml
+  environment:
+    KUBECONFIG: "{{ monitoring_kubeconfig }}"
+  when: monitoring_release.rc != 0
+
+- name: Create Grafana dashboard
+  ansible.builtin.template:
+    src: dashboard.yaml.j2
+    dest: /tmp/kubernetes-overview-dashboard.yaml
+    mode: "0644"
+
+- name: Apply Grafana dashboard
+  kubernetes.core.k8s:
+    state: present
+    kubeconfig: "{{ monitoring_kubeconfig }}"
+    src: /tmp/kubernetes-overview-dashboard.yaml

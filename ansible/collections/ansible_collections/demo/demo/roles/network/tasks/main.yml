@@ -1,0 +1,18 @@
+---
+- name: Install Helm
+  ansible.builtin.import_tasks: helm.yml
+
+- name: Install Gateway API
+  ansible.builtin.import_tasks: gateway_api.yml
+
+- name: Install NGINX Gateway Fabric
+  ansible.builtin.import_tasks: gateway_fabric.yml
+
+- name: Deploy Nginx application
+  ansible.builtin.import_tasks: nginx.yml
+
+- name: Configure Gateway
+  ansible.builtin.import_tasks: gateway.yml
+
+- name: Configure HTTPRoute
+  ansible.builtin.import_tasks: httproute.yml

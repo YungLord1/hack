@@ -1,0 +1,32 @@
+---
+- name: Install Kuber GPG
+  ansible.builtin.shell:
+    cmd: >
+      curl -fsSL
+      https://pkgs.k8s.io/core:/stable:/v{{ k8s_version }}/deb/Release.key
+      | gpg --dearmor -o {{ k8s_keyring_file }}
+  args:
+    creates: "{{ k8s_keyring_file }}"
+  tags:
+    - k8s
+    - k8s_repo
+
+- name: Set permissions on Kuber GPG
+  ansible.builtin.file:
+    path: "{{ k8s_keyring_file }}"
+    owner: root
+    group: root
+    mode: "0644"
+  tags:
+    - k8s
+    - k8s_repo
+
+- name: Add Kuber APT repo
+  ansible.builtin.apt_repository:
+    repo: "{{ k8s_repo_definition }}"
+    state: present
+    filename: kubernetes
+    update_cache: true
+  tags:
+    - k8s
+    - k8s_repo

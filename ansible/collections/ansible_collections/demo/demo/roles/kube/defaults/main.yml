@@ -1,0 +1,29 @@
+---
+# defaults file for demo.demo.kube
+
+# Variable that will be displayed in debug output
+# This demonstrates proper role variable naming with the 'run_' prefix
+kube_my_variable: "default_value"
+
+k8s_version: '1.37'
+
+#base utilits from lecture
+k8s_base_packages:
+  - ca-certificates
+  - curl
+  - gnupg
+  - lsb-release
+  - apt-transport-https
+  - python3-kubernetes
+
+#present - default state
+k8s_packages:
+  - kubelet
+  - kubeadm
+  - kubectl
+
+containerd_runc_binary: /usr/bin/runc
+
+#path for keyring
+k8s_keyring_file: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+k8s_repo_definition: "deb [signed-by={{ k8s_keyring_file }}] https://pkgs.k8s.io/core:/stable:/v{{ k8s_version }}/deb/ /"

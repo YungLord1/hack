@@ -1,0 +1,41 @@
+---
+- name: Configure Nginx Gateway Service
+  kubernetes.core.k8s:
+    state: present
+    kubeconfig: "{{ nginx_kubeconfig }}"
+    definition:
+      apiVersion: gateway.nginx.org/v1alpha2
+      kind: NginxProxy
+      metadata:
+        name: nginx-gateway-proxy
+        namespace: demo
+      spec:
+        kubernetes:
+          service:
+            type: NodePort
+            externalTrafficPolicy: Cluster
+
+- name: Create Nginx Gateway
+  kubernetes.core.k8s:
+    state: present
+    kubeconfig: "{{ nginx_kubeconfig }}"
+    definition:
+      apiVersion: gateway.networking.k8s.io/v1
+      kind: Gateway
+      metadata:
+        name: nginx-gateway
+        namespace: demo
+      spec:
+        gatewayClassName: nginx
+        infrastructure:
+          parametersRef:
+            group: gateway.nginx.org
+            kind: NginxProxy
+            name: nginx-gateway-proxy
+        listeners:
+          - name: http
+            protocol: HTTP
+            port: 80
+            allowedRoutes:
+              namespaces:
+                from: Same

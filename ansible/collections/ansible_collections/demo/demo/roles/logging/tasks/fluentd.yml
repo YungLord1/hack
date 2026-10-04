@@ -1,0 +1,24 @@
+---
+- name: Create Fluentd configuration
+  ansible.builtin.template:
+    src: fluentd-config.yaml.j2
+    dest: /tmp/fluentd-config.yaml
+    mode: "0644"
+
+- name: Create Fluentd DaemonSet
+  ansible.builtin.template:
+    src: fluentd-daemonset.yaml.j2
+    dest: /tmp/fluentd-daemonset.yaml
+    mode: "0644"
+
+- name: Apply Fluentd configuration
+  kubernetes.core.k8s:
+    state: present
+    kubeconfig: "{{ loki_kubeconfig }}"
+    src: /tmp/fluentd-config.yaml
+
+- name: Apply Fluentd DaemonSet
+  kubernetes.core.k8s:
+    state: present
+    kubeconfig: "{{ loki_kubeconfig }}"
+    src: /tmp/fluentd-daemonset.yaml
