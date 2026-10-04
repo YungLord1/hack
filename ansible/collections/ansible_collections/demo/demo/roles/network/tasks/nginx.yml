@@ -29,8 +29,8 @@
     src: "{{ playbook_dir }}/k8s/nginx/metrics-service.yaml"
     kubeconfig: "{{ nginx_kubeconfig }}"
 
-- name: Apply Nginx ServiceMonitor
-  kubernetes.core.k8s:
-    state: present
-    src: "{{ playbook_dir }}/k8s/nginx/servicemonitor.yaml"
-    kubeconfig: "{{ nginx_kubeconfig }}"
+#- name: Apply Nginx ServiceMonitor
+#  kubernetes.core.k8s:
+#    state: present
+#    src: "{{ playbook_dir }}/k8s/nginx/servicemonitor.yaml"
+#    kubeconfig: "{{ nginx_kubeconfig }}"
