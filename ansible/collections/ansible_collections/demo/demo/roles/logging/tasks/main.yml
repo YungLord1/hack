@@ -1,4 +1,11 @@
 ---
+- name: Prepare Loki storage directory
+  ansible.builtin.file:
+    path: /var/lib/loki
+    state: directory
+    mode: "0777"
+  become: true
+  
 - name: Install Loki
   ansible.builtin.import_tasks: loki.yml
 
